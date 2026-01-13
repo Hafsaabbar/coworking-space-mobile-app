@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:title="Accueil" />
+
+        <item
+            android:id="@+id/nav_spaces"
+            android:title="Mes espaces" />
+
+        <item
+            android:id="@+id/nav_bookings"
+            android:title="Réservations" />
+
+        <item
+            android:id="@+id/nav_profile"
+            android:title="Mon profil" />
+
+        <item
+            android:id="@+id/nav_logout"
+            android:title="Déconnexion" />
+    </group>
+
+</menu>

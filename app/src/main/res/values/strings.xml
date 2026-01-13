@@ -1,0 +1,77 @@
+<resources>
+    <string name="app_name">EspaceCoworking</string>
+
+    <!-- Boutons -->
+    <string name="reserve">Réserver</string>
+
+    <!-- Textes génériques -->
+    <string name="capacity">Capacité</string>
+
+    !-- Navigation Drawer -->
+    <string name="navigation_drawer_open">Ouvrir le menu</string>
+    <string name="navigation_drawer_close">Fermer le menu</string>
+
+    <!-- Messages -->
+    <string name="session_invalid">Session invalide</string>
+    <string name="space_deleted">Espace supprimé avec succès</string>
+    <string name="delete_error">Erreur lors de la suppression</string>
+    <string name="booking_confirmed">Réservation confirmée</string>
+    <string name="booking_rejected">Réservation refusée</string>
+    <string name="profile_updated">Profil mis à jour</string>
+    <string name="password_changed">Mot de passe changé avec succès</string>
+    <string name="wrong_password">Ancien mot de passe incorrect</string>
+
+    <!-- Actions -->
+    <string name="confirm">Confirmer</string>
+    <string name="cancel">Annuler</string>
+    <string name="delete">Supprimer</string>
+    <string name="edit">Modifier</string>
+    <string name="save">Enregistrer</string>
+
+    <!-- Dialogs -->
+    <string name="delete_space_title">Supprimer l\'espace</string>
+    <string name="delete_space_message">Êtes-vous sûr de vouloir supprimer cet espace ? Cette action est irréversible.</string>
+    <string name="confirm_booking_title">Confirmer la réservation</string>
+    <string name="confirm_booking_message">Voulez-vous confirmer cette réservation ?</string>
+    <string name="reject_booking_title">Refuser la réservation</string>
+    <string name="reject_booking_message">Voulez-vous refuser cette réservation ?</string>
+    <string name="logout_title">Déconnexion</string>
+    <string name="logout_message">Voulez-vous vraiment vous déconnecter ?</string>
+
+    <!-- Labels -->
+    <string name="my_spaces">Mes espaces</string>
+    <string name="manage_spaces">Mes espaces</string>
+    <string name="manage_bookings">Réservations</string>
+    <string name="add_space">Ajouter un espace</string>
+    <string name="edit_space">Modifier l\'espace</string>
+    <string name="space_name">Nom de l\'espace</string>
+    <string name="location">Localisation</string>
+    <string name="price_per_hour">Prix par heure (DH)</string>
+    <string name="description">Description</string>
+    <string name="space_photos">Photos de l\'espace</string>
+    <string name="add_photo">Ajouter</string>
+    <string name="client">Client</string>
+    <string name="pending">En attente</string>
+    <string name="confirmed">Confirmée</string>
+    <string name="completed">Terminée</string>
+    <string name="cancelled">Annulée</string>
+    <string name="history">Historique</string>
+
+    <!-- Availability -->
+    <string name="monday">Lundi</string>
+    <string name="tuesday">Mardi</string>
+    <string name="wednesday">Mercredi</string>
+    <string name="thursday">Jeudi</string>
+    <string name="friday">Vendredi</string>
+    <string name="saturday">Samedi</string>
+    <string name="sunday">Dimanche</string>
+
+    <!-- Filters -->
+    <string name="filter_by_city">Filtrer par ville</string>
+    <string name="filter_by_capacity">Filtrer par capacité</string>
+    <string name="filter_by_date">Filtrer par date</string>
+    <string name="apply_filters">Appliquer les filtres</string>
+    <string name="reset_filters">Réinitialiser</string>
+    <string name="no_spaces_found">Aucun espace trouvé</string>
+
+</resources>

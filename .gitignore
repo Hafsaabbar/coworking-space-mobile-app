@@ -1,0 +1,126 @@
+####################################
+# Android / Gradle
+####################################
+
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# ART / Dalvik
+*.dex
+
+# Java
+*.class
+
+# Generated folders
+bin/
+gen/
+out/
+release/
+outputs/
+
+# Gradle (generated)
+.gradle/
+build/
+.caches/
+.gradleDaemon/
+**/caches/
+**/cache/
+**/daemon/
+
+# Local configuration (SDK path, etc.)
+local.properties
+
+####################################
+# Android Studio / IntelliJ
+####################################
+
+# IntelliJ project files
+*.iml
+.idea/
+
+# Navigation editor temp files
+.navigation/
+
+# Captures
+captures/
+
+# Swap / temp files
+*.swp
+*.swo
+*~
+
+####################################
+# Native / NDK
+####################################
+
+.externalNativeBuild/
+.cxx/
+
+####################################
+# Lint
+####################################
+
+lint/intermediates/
+lint/generated/
+lint/outputs/
+lint/tmp/
+# lint/reports/   # décommente si tu veux versionner les rapports
+
+####################################
+# Profiling
+####################################
+
+*.hprof
+
+####################################
+# Security / Secrets
+####################################
+
+# Keystores
+*.jks
+*.keystore
+
+# Firebase / Google APIs
+
+####################################
+# Fastlane
+####################################
+
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+fastlane/readme.md
+
+####################################
+# Buck
+####################################
+
+.buckd/
+buck-out/
+
+####################################
+# OS files
+####################################
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+####################################
+# Temp files
+####################################
+
+*.tmp
+*.temp
+*.log
+# Gradle distributions (NE PAS PUSH)
+wrapper/dists/
+**/wrapper/dists/

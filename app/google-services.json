@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "504893158552",
+    "project_id": "espacecoworking-780c9",
+    "storage_bucket": "espacecoworking-780c9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:504893158552:android:03a0c29ee5be0828760ced",
+        "android_client_info": {
+          "package_name": "com.example.espacecoworking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdQZGeeycD70iGWfyRReaPiNdZVUoxpOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
