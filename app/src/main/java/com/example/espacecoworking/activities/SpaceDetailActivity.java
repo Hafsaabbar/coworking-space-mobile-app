@@ -39,7 +39,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 public class SpaceDetailActivity extends AppCompatActivity {
 
@@ -299,12 +298,6 @@ public class SpaceDetailActivity extends AppCompatActivity {
             return;
         }
 
-        // Vérifier les conflits avec d'autres réservations
-        if (repository.hasConflict(spaceId, selectedDate, selectedStartTime, selectedEndTime, -1)) {
-            Toast.makeText(this, "Cette période est déjà réservée", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         // Afficher un récapitulatif avant de confirmer
         showBookingConfirmation();
     }
@@ -344,7 +337,6 @@ public class SpaceDetailActivity extends AppCompatActivity {
             double hours = (endDate.getTime() - startDate.getTime()) / (1000.0 * 60 * 60);
             double totalPrice = hours * currentSpace.getPrice();
 
-            // ✅ CORRECTION : Utiliser le bon format pour parser la date
             SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             String displayDate = displayFormat.format(dateParser.parse(selectedDate));
@@ -389,9 +381,11 @@ public class SpaceDetailActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         newBooking.setCreatedAt(sdf.format(new Date()));
 
+        // ✅ APPELER addBooking() ET GÉRER LES CODES DE RETOUR
         long result = repository.addBooking(newBooking);
 
         if (result > 0) {
+            // ✅ Succès
             Toast.makeText(this, "Réservation créée avec succès! En attente de confirmation.", Toast.LENGTH_LONG).show();
 
             // Rediriger vers la page des réservations
@@ -399,9 +393,14 @@ public class SpaceDetailActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
+        } else if (result == -3) {
+            // ✅ Date/heure invalide (dans le passé)
+            Toast.makeText(this, "Vous ne pouvez pas réserver une date ou heure passée.", Toast.LENGTH_SHORT).show();
         } else if (result == -1) {
+            // ✅ Conflit horaire
             Toast.makeText(this, "Cette période est déjà réservée", Toast.LENGTH_SHORT).show();
         } else {
+            // ✅ Erreur autre
             Toast.makeText(this, "Erreur lors de la création de la réservation", Toast.LENGTH_SHORT).show();
         }
     }

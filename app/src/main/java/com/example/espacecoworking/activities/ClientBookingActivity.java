@@ -1,23 +1,27 @@
 package com.example.espacecoworking.activities;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import com.example.espacecoworking.R;
+
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.espacecoworking.R;
 import com.example.espacecoworking.adapters.BookingAdapter;
 import com.example.espacecoworking.models.Booking;
-import com.example.espacecoworking.models.Space;
 import com.example.espacecoworking.repository.Repository;
-import com.example.espacecoworking.utils.CalendarIntegration;
-import com.example.espacecoworking.utils.NotificationUtils;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.tabs.TabLayout;
 
@@ -25,10 +29,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 public class ClientBookingActivity extends AppCompatActivity implements BookingAdapter.OnBookingActionListener {
 
@@ -47,7 +49,13 @@ public class ClientBookingActivity extends AppCompatActivity implements BookingA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_client_booking);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.clientBookings), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         repository = Repository.getInstance(this);
         sharedPreferences = getSharedPreferences("EspaceCoworkingPrefs", MODE_PRIVATE);
         currentClientId = sharedPreferences.getInt("USER_ID", -1);
@@ -86,44 +94,20 @@ public class ClientBookingActivity extends AppCompatActivity implements BookingA
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
+            public void onTabUnselected(TabLayout.Tab tab) {}
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
     }
 
     private void loadBookings() {
+        // ✅ MISE À JOUR AUTOMATIQUE : Changer les statuts expirés à "completed"
+        repository.updateExpiredBookingsToCompleted();
+
+        // Charger les réservations du client
         allBookings = repository.getBookingsByClientId(currentClientId);
-        checkForNewConfirmations(allBookings);
-        updateTabTitles();
-        filterBookingsByStatus(tabLayout.getSelectedTabPosition());
-    }
-
-    private void updateTabTitles() {
-        int pendingCount = 0;
-        int confirmedCount = 0;
-        int completedCount = 0;
-
-        for (Booking booking : allBookings) {
-            switch (booking.getStatus()) {
-                case "pending":
-                    pendingCount++;
-                    break;
-                case "confirmed":
-                    confirmedCount++;
-                    break;
-                case "completed":
-                    completedCount++;
-                    break;
-            }
-        }
-
-        tabLayout.getTabAt(0).setText("En attente (" + pendingCount + ")");
-        tabLayout.getTabAt(1).setText("Confirmées (" + confirmedCount + ")");
-        tabLayout.getTabAt(2).setText("Terminées (" + completedCount + ")");
+        filterBookingsByStatus(0); // Show pending by default
     }
 
     private void filterBookingsByStatus(int tabPosition) {
@@ -161,55 +145,15 @@ public class ClientBookingActivity extends AppCompatActivity implements BookingA
         }
     }
 
-    private void checkForNewConfirmations(List<Booking> bookings) {
-        Set<String> notifiedBookings = sharedPreferences.getStringSet("notifiedBookings", new HashSet<>());
-        Set<String> newNotifiedBookings = new HashSet<>(notifiedBookings);
-
-        for (Booking booking : bookings) {
-            if ("confirmed".equals(booking.getStatus()) && !notifiedBookings.contains(String.valueOf(booking.getBookingId()))) {
-                Space space = repository.getSpaceById(booking.getSpaceId());
-                String spaceName = (space != null) ? space.getName() : "Espace inconnu";
-
-                NotificationUtils.showBookingConfirmationNotification(this, "Réservation Confirmée", "Votre réservation pour " + spaceName + " a été confirmée.");
-                showCalendarDialog(booking);
-                newNotifiedBookings.add(String.valueOf(booking.getBookingId()));
-            }
-        }
-        sharedPreferences.edit().putStringSet("notifiedBookings", newNotifiedBookings).apply();
-    }
-
-    private void showCalendarDialog(Booking booking) {
-        Space space = repository.getSpaceById(booking.getSpaceId());
-        String spaceName = (space != null) ? space.getName() : "Espace inconnu";
-
-        new AlertDialog.Builder(this)
-                .setTitle("Ajouter au calendrier")
-                .setMessage("Voulez-vous ajouter cette réservation à votre calendrier ?")
-                .setPositiveButton("Oui", (dialog, which) -> {
-                    try {
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-                        Date startDate = sdf.parse(booking.getDate() + " " + booking.getStartTime());
-                        Date endDate = sdf.parse(booking.getDate() + " " + booking.getEndTime());
-
-                        long startTimeMillis = startDate.getTime();
-                        long endTimeMillis = endDate.getTime();
-
-                        CalendarIntegration.addBookingToCalendar(this,
-                                "Réservation: " + spaceName,
-                                "Réservation de l'espace de coworking.",
-                                startTimeMillis,
-                                endTimeMillis);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                        Toast.makeText(this, "Erreur lors de la création de l\'événement", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Non", null)
-                .show();
-    }
-
     @Override
     public void onCancelBooking(Booking booking) {
+        // ✅ VALIDATION : Vérifier que la réservation n'est pas en cours
+        if (!canCancelBooking(booking)) {
+            Toast.makeText(this, "Impossible d'annuler une réservation passée ou en cours",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("Annuler la réservation")
                 .setMessage("Voulez-vous vraiment annuler cette réservation ?")
@@ -219,11 +163,31 @@ public class ClientBookingActivity extends AppCompatActivity implements BookingA
                         Toast.makeText(this, "Réservation annulée", Toast.LENGTH_SHORT).show();
                         loadBookings(); // Refresh
                     } else {
-                        Toast.makeText(this, "Erreur lors de l\'annulation", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Erreur lors de l'annulation", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Non", null)
                 .show();
+    }
+
+    /**
+     * Vérifie que la réservation n'a pas commencé et peut être annulée
+     * @param booking La réservation à vérifier
+     * @return true si annulation possible, false sinon
+     */
+    private boolean canCancelBooking(Booking booking) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+
+            Date now = new Date();
+            Date startDateTime = sdf.parse(booking.getDate() + " " + booking.getStartTime());
+
+            // On ne peut annuler que si la réservation n'a pas commencé
+            return now.getTime() < startDateTime.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/purple_500"
-            app:title="Mes Espaces"
+            app:title="Accueil"
             app:titleTextColor="@android:color/white"
             app:navigationIcon="@drawable/ic_menu"/>
 

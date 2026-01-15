@@ -43,14 +43,16 @@ public class ClientProfileActivity extends AppCompatActivity {
     private ImageView imgProfile;
     private FloatingActionButton fabEditImage;
     private TextInputEditText etName, etEmail, etPhone;
-    private MaterialButton btnUpdateProfile, txtChangePassword;
-    private TextView txtTotalBookings;
+    private MaterialButton btnUpdateProfile;
+    private TextView txtChangePassword;
     private ProgressBar progressBar;
+    private TextView txtCompletedBookings; // ✅ AJOUTER CETTE VARIABLE
 
     private Repository repository;
     private SharedPreferences sharedPreferences;
     private User currentUser;
     private byte[] selectedImageBytes;
+    private int currentClientId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +66,15 @@ public class ClientProfileActivity extends AppCompatActivity {
         });
         repository = Repository.getInstance(this);
         sharedPreferences = getSharedPreferences("EspaceCoworkingPrefs", MODE_PRIVATE);
+        currentClientId = sharedPreferences.getInt("USER_ID", -1);
 
         initViews();
         setupToolbar();
         loadUserData();
+        loadCompletedBookingsCount(); // ✅ CHARGER LE NOMBRE DE RÉSERVATIONS TERMINÉES
         setupListeners();
     }
+
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         imgProfile = findViewById(R.id.imgProfile);
@@ -79,8 +84,9 @@ public class ClientProfileActivity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
         txtChangePassword = findViewById(R.id.txtChangePassword);
-        txtTotalBookings = findViewById(R.id.txtTotalBookings);
         progressBar = findViewById(R.id.progressBar);
+        // ✅ INITIALISER LA TEXTVIEW
+        txtCompletedBookings = findViewById(R.id.txtTotalBookings);
     }
 
     private void setupToolbar() {
@@ -89,9 +95,8 @@ public class ClientProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        int userId = sharedPreferences.getInt("USER_ID", -1);
-        if (userId != -1) {
-            currentUser = repository.getUserById(userId);
+        if (currentClientId != -1) {
+            currentUser = repository.getUserById(currentClientId);
             if (currentUser != null) {
                 etName.setText(currentUser.getName());
                 etEmail.setText(currentUser.getEmail());
@@ -103,10 +108,31 @@ public class ClientProfileActivity extends AppCompatActivity {
                             currentUser.getImage(), 0, currentUser.getImage().length);
                     imgProfile.setImageBitmap(bitmap);
                 }
+            }
+        }
+    }
 
-                // Load total bookings
-                List<Booking> bookings = repository.getBookingsByClientId(userId);
-                txtTotalBookings.setText(String.valueOf(bookings.size()));
+    /**
+     * ✅ NOUVELLE MÉTHODE : Compter les réservations TERMINÉES (completed)
+     */
+    private void loadCompletedBookingsCount() {
+        if (currentClientId != -1) {
+            // Obtenir toutes les réservations du client
+            List<Booking> bookings = repository.getBookingsByClientId(currentClientId);
+
+            if (bookings != null) {
+                // Compter seulement les "completed"
+                int completedCount = 0;
+                for (Booking booking : bookings) {
+                    if ("completed".equals(booking.getStatus())) {
+                        completedCount++;
+                    }
+                }
+
+                // Afficher le nombre
+                txtCompletedBookings.setText(String.valueOf(completedCount));
+            } else {
+                txtCompletedBookings.setText("0");
             }
         }
     }
@@ -145,7 +171,7 @@ public class ClientProfileActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Erreur lors du chargement de l\'image",
+                Toast.makeText(this, "Erreur lors du chargement de l'image",
                         Toast.LENGTH_SHORT).show();
             }
         }
@@ -248,8 +274,14 @@ public class ClientProfileActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton("Non", null)
+                .setNegativeButton("Annuler", null)
                 .show();
     }
-    
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // ✅ RECHARGER À CHAQUE FOIS QU'ON REVIENT SUR L'ACTIVITÉ
+        loadCompletedBookingsCount();
+    }
 }

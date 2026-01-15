@@ -3,14 +3,18 @@ package com.example.espacecoworking.repository;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.icu.text.SimpleDateFormat;
 
 import com.example.espacecoworking.database.*;
 import com.example.espacecoworking.models.*;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 
 public class Repository {
 
@@ -224,11 +228,75 @@ public class Repository {
     // BOOKING
 
     /**
+     * Valide que la date/heure n'est pas dans le passé
+     * @return true si valide, false sinon
+     */
+    public boolean isValidBookingDateTime(String date, String startTime, String endTime) {
+        try {
+            // Format : "yyyy-MM-dd HH:mm"
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+
+            // Obtenir l'heure actuelle
+            Date now = new Date();
+
+            // Parser la date et l'heure de début
+            Date bookingStart = sdf.parse(date + " " + startTime);
+            Date bookingEnd = sdf.parse(date + " " + endTime);
+
+            // Vérifications :
+            // 1. La date/heure de début doit être >= à maintenant
+            // 2. La date/heure de fin doit être > à la date/heure de début
+            boolean isStartValid = bookingStart.getTime() >= now.getTime();
+            boolean isEndValid = bookingEnd.getTime() > bookingStart.getTime();
+
+            return isStartValid && isEndValid;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Met à jour automatiquement les réservations "confirmed" expirées en "completed"
+     */
+    public void updateExpiredBookingsToCompleted() {
+        try {
+            List<Booking> allBookings = getAllBookings();
+            Date now = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+
+            for (Booking booking : allBookings) {
+                // Ne traiter que les réservations "confirmed"
+                if ("confirmed".equals(booking.getStatus())) {
+                    try {
+                        // Parser l'heure de fin de la réservation
+                        Date endDateTime = sdf.parse(booking.getDate() + " " + booking.getEndTime());
+
+                        // Si l'heure actuelle est après l'heure de fin
+                        if (now.getTime() > endDateTime.getTime()) {
+                            updateBookingStatus(booking.getBookingId(), "completed");
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Ajoute une réservation en vérifiant d'abord la disponibilité.
      *
-     * @return ID de la réservation si succès, -1 si conflit, -2 si erreur autre.
+     * @return ID de la réservation si succès, -1 si conflit, -3 si date/heure invalide
      */
     public long addBooking(Booking booking) {
+        // Vérifier que la date/heure n'est pas dans le passé
+        if (!isValidBookingDateTime(booking.getDate(), booking.getStartTime(), booking.getEndTime())) {
+            return -3; // Code spécial : date/heure invalide
+        }
+
         // Logique Métier : Vérification de conflit automatique
         boolean conflict = bookingDao.hasConflict(
                 booking.getSpaceId(),
@@ -383,6 +451,4 @@ public class Repository {
     public int deleteSpaceOwnersByOwnerId(int ownerId) {
         return spaceOwnerDao.deleteSpaceOwnersByOwnerId(ownerId);
     }
-
-
 }
