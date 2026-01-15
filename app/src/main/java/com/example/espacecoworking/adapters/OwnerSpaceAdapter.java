@@ -57,7 +57,7 @@ public class OwnerSpaceAdapter extends RecyclerView.Adapter<OwnerSpaceAdapter.Sp
         holder.txtName.setText(space.getName());
         holder.txtLocation.setText(space.getLocation());
         holder.txtCapacity.setText("Capacité : " + space.getCapacity() + " personnes");
-        holder.txtPrice.setText(String.format("%.2f DH/jour", space.getPrice()));
+        holder.txtPrice.setText(String.format("%.2f DH/heure", space.getPrice()));
 
         // Charger l'image de l'espace
         try {

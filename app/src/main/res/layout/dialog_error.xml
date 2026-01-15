@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/dialog_error_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Une erreur s'est produite. Veuillez réessayer."
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/dialog_error_ok_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:text="OK" />
+
+</LinearLayout>

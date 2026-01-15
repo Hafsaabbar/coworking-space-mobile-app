@@ -11,6 +11,7 @@ import com.example.espacecoworking.R;
 import com.example.espacecoworking.database.DatabaseHelper;
 import com.example.espacecoworking.models.User;
 import com.example.espacecoworking.repository.Repository;
+import com.example.espacecoworking.utils.NotificationHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        NotificationHelper.createNotificationChannel(this);
 
         mAuth = FirebaseAuth.getInstance();
         repository = Repository.getInstance(this);

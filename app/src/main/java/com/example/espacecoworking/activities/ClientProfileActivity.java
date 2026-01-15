@@ -23,6 +23,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.espacecoworking.R;
+import com.example.espacecoworking.models.Booking;
 import com.example.espacecoworking.models.User;
 import com.example.espacecoworking.repository.Repository;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -32,6 +33,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class ClientProfileActivity extends AppCompatActivity {
 
@@ -41,8 +43,8 @@ public class ClientProfileActivity extends AppCompatActivity {
     private ImageView imgProfile;
     private FloatingActionButton fabEditImage;
     private TextInputEditText etName, etEmail, etPhone;
-    private MaterialButton btnUpdateProfile;
-    private TextView txtChangePassword;
+    private MaterialButton btnUpdateProfile, txtChangePassword;
+    private TextView txtTotalBookings;
     private ProgressBar progressBar;
 
     private Repository repository;
@@ -77,6 +79,7 @@ public class ClientProfileActivity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
         txtChangePassword = findViewById(R.id.txtChangePassword);
+        txtTotalBookings = findViewById(R.id.txtTotalBookings);
         progressBar = findViewById(R.id.progressBar);
     }
 
@@ -100,6 +103,10 @@ public class ClientProfileActivity extends AppCompatActivity {
                             currentUser.getImage(), 0, currentUser.getImage().length);
                     imgProfile.setImageBitmap(bitmap);
                 }
+
+                // Load total bookings
+                List<Booking> bookings = repository.getBookingsByClientId(userId);
+                txtTotalBookings.setText(String.valueOf(bookings.size()));
             }
         }
     }
@@ -138,7 +145,7 @@ public class ClientProfileActivity extends AppCompatActivity {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Erreur lors du chargement de l'image",
+                Toast.makeText(this, "Erreur lors du chargement de l\'image",
                         Toast.LENGTH_SHORT).show();
             }
         }
@@ -241,7 +248,7 @@ public class ClientProfileActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton("Annuler", null)
+                .setNegativeButton("Non", null)
                 .show();
     }
     

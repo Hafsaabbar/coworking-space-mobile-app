@@ -11,19 +11,16 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.espacecoworking.R;
 import com.example.espacecoworking.models.User;
 import com.example.espacecoworking.repository.Repository;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -36,8 +33,9 @@ public class OwnerProfileActivity extends AppCompatActivity {
 
     private MaterialToolbar toolbar;
     private ShapeableImageView imgProfile;
+    private FloatingActionButton fabEditImage;
     private TextInputEditText etName, etEmail, etPhone;
-    private MaterialButton btnUpdateProfile;
+    private MaterialButton btnUpdateProfile, txtChangePassword;
     private ProgressBar progressBar;
 
     private Repository repository;
@@ -49,12 +47,7 @@ public class OwnerProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner_profile);
-        EdgeToEdge.enable(this);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ownerProfile), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
         initViews();
         repository = Repository.getInstance(this);
 
@@ -62,7 +55,7 @@ public class OwnerProfileActivity extends AppCompatActivity {
         ownerId = prefs.getInt("USER_ID", -1);
 
         if (ownerId == -1) {
-            Toast.makeText(this, R.string.session_invalid, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Session invalide", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -75,10 +68,12 @@ public class OwnerProfileActivity extends AppCompatActivity {
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         imgProfile = findViewById(R.id.imgProfile);
+        fabEditImage = findViewById(R.id.fabEditImage);
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
         etPhone = findViewById(R.id.etPhone);
         btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
+        txtChangePassword = findViewById(R.id.txtChangePassword);
         progressBar = findViewById(R.id.progressBar);
     }
 
@@ -97,7 +92,6 @@ public class OwnerProfileActivity extends AppCompatActivity {
             etEmail.setText(currentUser.getEmail());
             etPhone.setText(currentUser.getPhone());
 
-            // Charger l'image de profil si disponible
             if (currentUser.getImage() != null && currentUser.getImage().length > 0) {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(
                         currentUser.getImage(), 0, currentUser.getImage().length
@@ -108,11 +102,9 @@ public class OwnerProfileActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        findViewById(R.id.fabEditImage).setOnClickListener(v -> selectImage());
-
+        fabEditImage.setOnClickListener(v -> selectImage());
         btnUpdateProfile.setOnClickListener(v -> updateProfile());
-
-        findViewById(R.id.txtChangePassword).setOnClickListener(v -> showChangePasswordDialog());
+        txtChangePassword.setOnClickListener(v -> showChangePasswordDialog());
     }
 
     private void selectImage() {
@@ -129,12 +121,9 @@ public class OwnerProfileActivity extends AppCompatActivity {
             Uri imageUri = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-
-                // Redimensionner l'image
                 Bitmap resizedBitmap = resizeBitmap(bitmap, 500, 500);
                 imgProfile.setImageBitmap(resizedBitmap);
 
-                // Convertir en byte array
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream);
                 selectedImageBytes = stream.toByteArray();
@@ -149,10 +138,8 @@ public class OwnerProfileActivity extends AppCompatActivity {
     private Bitmap resizeBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-
         float ratioBitmap = (float) width / (float) height;
         float ratioMax = (float) maxWidth / (float) maxHeight;
-
         int finalWidth = maxWidth;
         int finalHeight = maxHeight;
 
@@ -161,7 +148,6 @@ public class OwnerProfileActivity extends AppCompatActivity {
         } else {
             finalHeight = (int) ((float) maxWidth / ratioBitmap);
         }
-
         return Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, true);
     }
 
@@ -191,7 +177,7 @@ public class OwnerProfileActivity extends AppCompatActivity {
         btnUpdateProfile.setEnabled(true);
 
         if (result > 0) {
-            Toast.makeText(this, R.string.profile_updated, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Profil mis à jour", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Erreur lors de la mise à jour", Toast.LENGTH_SHORT).show();
         }
@@ -230,12 +216,12 @@ public class OwnerProfileActivity extends AppCompatActivity {
                     boolean success = repository.changePassword(ownerId, oldPassword, newPassword);
 
                     if (success) {
-                        Toast.makeText(this, R.string.password_changed, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Mot de passe changé", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(this, R.string.wrong_password, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Ancien mot de passe incorrect", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton("Annuler", null)
                 .show();
     }
 }

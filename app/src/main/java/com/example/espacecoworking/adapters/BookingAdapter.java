@@ -1,10 +1,13 @@
 package com.example.espacecoworking.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.espacecoworking.R;
 import com.example.espacecoworking.models.Booking;
 import com.example.espacecoworking.models.Space;
+import com.example.espacecoworking.models.SpaceImages;
 import com.example.espacecoworking.repository.Repository;
 import com.google.android.material.button.MaterialButton;
 
@@ -55,6 +59,23 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         if (space != null) {
             holder.txtSpaceName.setText(space.getName());
             holder.txtLocation.setText(space.getLocation());
+
+            // --- DEBUT DE LA CORRECTION : CHARGEMENT DE L'IMAGE ---
+            try {
+                SpaceImages imgData = repository.getFirstImageBySpaceId(space.getSpaceId());
+                if (imgData != null && imgData.getImage() != null && imgData.getImage().length > 0) {
+                    Bitmap bmp = BitmapFactory.decodeByteArray(imgData.getImage(), 0, imgData.getImage().length);
+                    holder.imgSpace.setImageBitmap(bmp);
+                } else {
+                    // Utiliser une image par défaut si aucune image n'est trouvée
+                    holder.imgSpace.setImageResource(R.drawable.img); 
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                holder.imgSpace.setImageResource(R.drawable.img);
+            }
+            // --- FIN DE LA CORRECTION ---
+
 
             // Calculer et afficher le prix total
             double totalAmount = calculateTotalAmount(booking, space);
@@ -135,11 +156,13 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     }
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
+        ImageView imgSpace;
         TextView txtSpaceName, txtLocation, txtDate, txtTime, txtStatus, txtTotalAmount;
         MaterialButton btnCancelBooking;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
+            imgSpace = itemView.findViewById(R.id.imgSpace);
             txtSpaceName = itemView.findViewById(R.id.txtSpaceName);
             txtLocation = itemView.findViewById(R.id.txtLocation);
             txtDate = itemView.findViewById(R.id.txtDate);
